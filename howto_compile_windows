@@ -1,0 +1,22 @@
+
+first start vs2010 command prompt
+
+then download opengl-es sdk
+https://github.com/okk3/OpenGL-ES-SDK
+
+
+rename opengles
+cp -r opengles /cygdrive/d
+add 
+#define EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE 0x3209
+#define EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE 0x320A
+into opengles\include\EGL\eglext.h
+
+
+set INCLUDE=%INCLUDE%d:\opengles\include
+set LIB=%LIB%d:\opengles\x86-64
+set LIBPATH=%LIBPATH%d:\opengles\x86-64
+
+run .\configure.bat
+and run 
+nmake.exe

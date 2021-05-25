@@ -9,7 +9,7 @@ rename opengles
 cp -r opengles /cygdrive/d
 add 
 #define EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE 0x3209
-#define EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE 0x320A
+#define EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE 0x320b
 into opengles\include\EGL\eglext.h
 
 

@@ -1,11 +1,13 @@
 QT  += core gui widgets
 
 HEADERS = $$PWD/glwindow.h \
-          $$PWD/../hellogl2/logo.h
+          $$PWD/../hellogl2/logo.h \
+          $$PWD/mainwindow.h
 
 SOURCES = $$PWD/glwindow.cpp \
           $$PWD/main.cpp \
-          $$PWD/../hellogl2/logo.cpp
+          $$PWD/../hellogl2/logo.cpp \
+          $$PWD/mainwindow.cpp
 
 RESOURCES += hellogles3.qrc
 

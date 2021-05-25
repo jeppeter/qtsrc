@@ -1,3 +1,5 @@
+QT  += core gui widgets
+
 HEADERS = $$PWD/glwindow.h \
           $$PWD/../hellogl2/logo.h
 

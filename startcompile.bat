@@ -34,4 +34,4 @@ echo "LIB [%LIB%]"
 
 set TEMP=z:\temp
 set TMP=z:\temp
-"%configure%" -opensource -confirm-license
+"%configure%" -opensource -confirm-license -opengl

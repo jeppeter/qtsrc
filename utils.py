@@ -21,6 +21,37 @@ def set_log_level(args):
     logging.basicConfig(level=loglvl,format='%(asctime)s:%(filename)s:%(funcName)s:%(lineno)d\t%(message)s')
     return
 
+def read_file(infile=None):
+	fin = sys.stdin
+	if infile is not None:
+		fin = open(infile,'r+b')
+	rets = ''
+	for l in fin:
+		s = l
+		if 'b' in fin.mode:
+			if sys.version[0] == '3':
+				s = l.decode('utf-8')
+		rets += s
+
+	if fin != sys.stdin:
+		fin.close()
+	fin = None
+	return rets
+
+def write_file(s,outfile=None):
+	fout = sys.stdout
+	if outfile is not None:
+		fout = open(outfile, 'w+b')
+	outs = s
+	if 'b' in fout.mode:
+		outs = s.encode('utf-8')
+	fout.write(outs)
+	if fout != sys.stdout:
+		fout.close()
+	fout = None
+	return 
+
+
 def is_in_windows():
 	s = platform.system().lower()
 	if s == 'windows':
@@ -53,16 +84,70 @@ def checkenvpath_handler(args,parser):
 		sys.exit(1)
 	return
 
+def remove_quiet_file(fname,verbose):
+	reads = read_file(fname)
+	sarr = re.split('\n',reads)
+	writes = ''
+	matchexpr = re.compile('^\t@')
+	idx = 0
+	removed = 0
+	for l in sarr:
+		idx += 1
+		#l = l.rstrip('\r\n')
+		if matchexpr.match(l):
+			s = l.replace('@','',1)
+			logging.debug('replace [%d][%s] => [%s]'%(idx,l,s))
+			l = s
+			removed += 1
+		writes += '%s\n'%(l)
+	write_file(writes,fname)
+	return removed
+
+
+
+def remove_quiet_dir(dname,recursive,filters,dryrun,verbose=0):
+	files = os.listdir(dname)
+	retval = 0
+	for f in files:
+		if f != '.' and f != '..':
+			curf = os.path.join(dname,f)
+			if f in filters:
+				rdline = 0
+				if not dryrun:
+					rdline = remove_quiet_file(curf,verbose)
+				logging.info('removed [%s] [%s]'%(curf,rdline))
+				retval += 1
+			if os.path.isdir(curf) and recursive:
+				retval += remove_quiet_dir(curf,recursive,filters,dryrun,verbose)
+	return retval
+
+def removequiet_handler(args,parser):
+	set_log_level(args)
+	filters = args.subnargs
+	dname = os.path.abspath(args.dstdir)
+	retval = remove_quiet_dir(dname,args.recursive,filters, args.dryrun,args.verbose)
+	sys.stdout.write('remove [%s]\n'%(retval))
+	sys.exit(0)
+	return
+
 
 def main():
-	commandline='''
+	commandline_fmt='''
 	{
 		"verbose|v" : "+",
+		"dstdir|D" : "%s",
+		"recursive|R" : true,
+		"dryrun" : false,
 		"checkenvpath<checkenvpath_handler>##envvar paths ... to check paths in the envvar##" : {
+			"$" : "+"
+		},
+		"removequiet<removequiet_handler>##fnames ... to get file names##" : {
 			"$" : "+"
 		}
 	}
 	'''
+	curd = os.getcwd()
+	commandline = commandline_fmt%(curd.replace('\\','\\\\'))
 	parser = extargsparse.ExtArgsParse()
 	parser.load_command_line_string(commandline)
 	parser.parse_command_line(None,parser)
